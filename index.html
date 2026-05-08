@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SHANGO — Atmospheric Intelligence System</title>
+<meta name="description" content="SHANGO is an AI-native atmospheric engineering and weather intelligence platform — forecast, manipulate, and optimize climate systems at scale."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+
+<style>
+:root {
+  --cyan:    #06b6d4;
+  --cyan-d:  #0891b2;
+  --cyan-l:  #67e8f9;
+  --slate:   #0f172a;
+  --slate-m: #1e293b;
+  --slate-s: #334155;
+  --ice:     #e0f7ff;
+  --white:   #f8fafc;
+  --muted:   #94a3b8;
+  --warn:    #f97316;
+  --danger:  #ef4444;
+  --success: #10b981;
+  --r: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--slate);
+  color: var(--white);
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ─── NOISE TEXTURE ─── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 3rem;
+  background: rgba(15,23,42,0.7);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(6,182,212,0.12);
+}
+.nav-logo { display: flex; align-items: center; gap: 0.75rem; }
+.nav-logo-mark {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--cyan-d), var(--cyan-l));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; font-weight: 800; color: var(--slate);
+}
+.nav-wordmark { font-size: 1.2rem; font-weight: 800; letter-spacing: 0.12em; color: var(--white); }
+.nav-sub { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--cyan); letter-spacing: 0.08em; margin-top: 1px; }
+.nav-links { display: flex; gap: 2.5rem; }
+.nav-links a {
+  font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.06em;
+  color: var(--muted); text-decoration: none; transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--cyan-l); }
+.nav-cta {
+  padding: 0.55rem 1.4rem; border-radius: 8px;
+  background: var(--cyan); color: var(--slate);
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em;
+  text-decoration: none; transition: all 0.2s;
+  border: none; cursor: pointer;
+}
+.nav-cta:hover { background: var(--cyan-l); transform: translateY(-1px); }
+
+/* ─── HERO ─── */
+#hero {
+  position: relative; min-height: 100vh;
+  display: grid; align-items: center;
+  padding: 10rem 3rem 5rem;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 60% 40%, rgba(6,182,212,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 20% 70%, rgba(8,145,178,0.10) 0%, transparent 50%),
+    linear-gradient(180deg, #0b1629 0%, #0f172a 100%);
+}
+#canvas-storm {
+  position: absolute; inset: 0; z-index: 1; opacity: 0.55;
+}
+.hero-content { position: relative; z-index: 2; max-width: 680px; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em;
+  color: var(--cyan); background: rgba(6,182,212,0.08);
+  border: 1px solid rgba(6,182,212,0.25); border-radius: 999px;
+  padding: 0.35rem 0.9rem; margin-bottom: 2rem;
+}
+.hero-eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cyan); animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+.hero-h1 {
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: clamp(3.2rem, 7vw, 6rem); line-height: 1.0;
+  color: var(--white); margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+.hero-h1 em { font-style: normal; color: var(--cyan-l); }
+.hero-desc {
+  font-size: 1.05rem; line-height: 1.8; color: var(--muted);
+  max-width: 540px; margin-bottom: 2.5rem;
+}
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+.btn-primary {
+  padding: 0.85rem 2rem; border-radius: var(--r);
+  background: linear-gradient(135deg, var(--cyan-d), var(--cyan));
+  color: var(--slate); font-weight: 700; font-size: 0.9rem;
+  text-decoration: none; border: none; cursor: pointer;
+  transition: all 0.25s; display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(6,182,212,0.35); }
+.btn-secondary {
+  padding: 0.85rem 2rem; border-radius: var(--r);
+  background: transparent; color: var(--white); font-weight: 600; font-size: 0.9rem;
+  text-decoration: none; border: 1px solid rgba(255,255,255,0.18); cursor: pointer;
+  transition: all 0.25s; display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.06); border-color: var(--cyan); }
+
+.hero-metrics {
+  position: absolute; right: 3rem; top: 50%; transform: translateY(-50%);
+  z-index: 2; display: flex; flex-direction: column; gap: 1rem;
+}
+.metric-chip {
+  background: rgba(15,23,42,0.85); border: 1px solid rgba(6,182,212,0.2);
+  border-radius: 12px; padding: 1rem 1.25rem; backdrop-filter: blur(12px);
+  min-width: 180px;
+}
+.metric-chip .val {
+  font-family: 'DM Mono', monospace; font-size: 1.6rem; font-weight: 400; color: var(--cyan-l);
+}
+.metric-chip .lbl {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted);
+  letter-spacing: 0.08em; margin-top: 2px;
+}
+
+/* ─── TICKER ─── */
+.ticker-bar {
+  position: relative; z-index: 3;
+  background: rgba(6,182,212,0.08);
+  border-top: 1px solid rgba(6,182,212,0.15);
+  border-bottom: 1px solid rgba(6,182,212,0.15);
+  overflow: hidden; padding: 0.6rem 0;
+}
+.ticker-inner {
+  display: flex; gap: 4rem; white-space: nowrap;
+  animation: ticker 30s linear infinite;
+}
+@keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.ticker-item {
+  font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em;
+  color: var(--cyan); display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.ticker-item .t-val { color: var(--white); }
+
+/* ─── SECTION BASE ─── */
+section { position: relative; z-index: 1; padding: 6rem 3rem; }
+.section-label {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.16em;
+  color: var(--cyan); text-transform: uppercase; margin-bottom: 1rem;
+}
+.section-h2 {
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.1;
+  color: var(--white); margin-bottom: 1rem;
+}
+.section-h2 em { font-style: normal; color: var(--cyan-l); }
+.section-desc { font-size: 1rem; line-height: 1.8; color: var(--muted); max-width: 560px; }
+.center { text-align: center; }
+.center .section-desc { margin: 0 auto; }
+
+/* ─── DIVIDER ─── */
+.divider {
+  border: none; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(6,182,212,0.2), transparent);
+  margin: 0 3rem;
+}
+
+/* ─── MANIPULATION SECTION ─── */
+#manipulation { background: linear-gradient(180deg, var(--slate) 0%, #08192e 100%); }
+.manip-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 2rem; margin-top: 3.5rem;
+}
+.manip-card {
+  background: rgba(30,41,59,0.6);
+  border: 1px solid rgba(6,182,212,0.15);
+  border-radius: var(--r); padding: 1.75rem;
+  transition: all 0.3s; position: relative; overflow: hidden;
+}
+.manip-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--cyan-d), var(--cyan-l));
+  opacity: 0; transition: opacity 0.3s;
+}
+.manip-card:hover { border-color: rgba(6,182,212,0.35); transform: translateY(-3px); }
+.manip-card:hover::before { opacity: 1; }
+.manip-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; margin-bottom: 1rem;
+}
+.manip-card h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; }
+.manip-card p { font-size: 0.85rem; line-height: 1.7; color: var(--muted); }
+.manip-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em;
+  padding: 0.2rem 0.6rem; border-radius: 4px; margin-top: 0.75rem;
+}
+.badge-new { background: rgba(6,182,212,0.15); color: var(--cyan-l); }
+.badge-exp { background: rgba(249,115,22,0.15); color: var(--warn); }
+
+/* ─── AGENTS SECTION ─── */
+#agents { }
+.agents-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; margin-top: 3rem; }
+.agent-domain-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.domain-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 1.1rem; border-radius: 10px;
+  background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer; transition: all 0.2s;
+}
+.domain-row:hover { border-color: rgba(6,182,212,0.3); background: rgba(6,182,212,0.06); }
+.domain-row.active { border-color: var(--cyan); background: rgba(6,182,212,0.1); }
+.domain-name { font-size: 0.85rem; font-weight: 600; color: var(--white); }
+.domain-count {
+  font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  background: rgba(6,182,212,0.2); color: var(--cyan-l);
+  padding: 0.15rem 0.55rem; border-radius: 6px;
+}
+.domain-new {
+  font-family: 'DM Mono', monospace; font-size: 0.55rem; letter-spacing: 0.1em;
+  background: rgba(249,115,22,0.2); color: var(--warn);
+  padding: 0.1rem 0.45rem; border-radius: 4px; margin-left: 0.5rem;
+}
+.agent-detail-panel {
+  background: rgba(15,23,42,0.8); border: 1px solid rgba(6,182,212,0.2);
+  border-radius: var(--r); padding: 1.75rem;
+  min-height: 360px;
+}
+.panel-domain-label {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em;
+  color: var(--cyan); margin-bottom: 1rem;
+}
+.agent-tag-cloud { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.agent-tag {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.08);
+  color: var(--muted); padding: 0.3rem 0.7rem; border-radius: 6px;
+  transition: all 0.2s; cursor: default;
+}
+.agent-tag:hover { border-color: rgba(6,182,212,0.4); color: var(--cyan-l); }
+.agent-count-total {
+  font-family: 'DM Mono', monospace;
+  font-size: 4rem; font-weight: 300;
+  color: var(--cyan); line-height: 1; margin-bottom: 0.25rem;
+}
+.agent-count-sub { font-size: 0.8rem; color: var(--muted); }
+
+/* ─── APP SECTION ─── */
+#app-access {
+  background: linear-gradient(180deg, #08192e 0%, #0a1628 100%);
+}
+.app-frame-wrap {
+  margin-top: 3rem; border-radius: 20px; overflow: hidden;
+  border: 1px solid rgba(6,182,212,0.25);
+  box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(6,182,212,0.1);
+}
+.app-frame-bar {
+  background: rgba(15,23,42,0.95);
+  border-bottom: 1px solid rgba(6,182,212,0.15);
+  padding: 0.75rem 1.25rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.frame-dots { display: flex; gap: 6px; }
+.frame-dots span {
+  width: 11px; height: 11px; border-radius: 50%;
+}
+.frame-dots span:nth-child(1) { background: #ef4444; }
+.frame-dots span:nth-child(2) { background: #f59e0b; }
+.frame-dots span:nth-child(3) { background: #10b981; }
+.frame-url {
+  flex: 1; background: rgba(30,41,59,0.7);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px; padding: 0.35rem 0.75rem;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.frame-url .lock { color: var(--success); }
+.app-dashboard {
+  background: #060f1e;
+  padding: 2rem; min-height: 560px;
+  display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem;
+}
+.app-sidebar {
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+.sidebar-item {
+  padding: 0.7rem 0.9rem; border-radius: 8px;
+  font-size: 0.78rem; color: var(--muted); cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; gap: 0.6rem;
+}
+.sidebar-item.active { background: rgba(6,182,212,0.12); color: var(--cyan-l); border: 1px solid rgba(6,182,212,0.2); }
+.sidebar-item:hover:not(.active) { background: rgba(255,255,255,0.04); }
+.sidebar-icon { font-size: 1rem; }
+.app-main { display: flex; flex-direction: column; gap: 1.25rem; }
+.dash-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.dash-kpi {
+  background: rgba(15,23,42,0.8); border: 1px solid rgba(6,182,212,0.15);
+  border-radius: 12px; padding: 1rem 1.1rem;
+}
+.kpi-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+.kpi-val { font-family: 'DM Mono', monospace; font-size: 1.5rem; color: var(--cyan-l); }
+.kpi-delta { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--success); margin-top: 2px; }
+.kpi-delta.warn { color: var(--warn); }
+.dash-chart-area {
+  background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px; padding: 1.25rem; flex: 1;
+}
+.chart-title { font-size: 0.8rem; font-weight: 600; color: var(--white); margin-bottom: 1rem; display: flex; justify-content: space-between; }
+.chart-title span { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--cyan); }
+.mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 120px; }
+.chart-bar {
+  flex: 1; border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, var(--cyan) 0%, var(--cyan-d) 100%);
+  opacity: 0.75; transition: opacity 0.2s;
+  animation: bar-grow 0.8s ease-out both;
+}
+.chart-bar:hover { opacity: 1; }
+@keyframes bar-grow { from{transform:scaleY(0);transform-origin:bottom} to{transform:scaleY(1)} }
+
+.ops-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.75rem; }
+.op-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.6rem 0.8rem; background: rgba(6,182,212,0.05);
+  border: 1px solid rgba(6,182,212,0.1); border-radius: 8px;
+  font-size: 0.75rem;
+}
+.op-type { color: var(--white); font-weight: 600; }
+.op-loc { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); }
+.op-status {
+  font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.06em;
+  padding: 0.2rem 0.5rem; border-radius: 4px;
+}
+.s-active { background: rgba(16,185,129,0.15); color: var(--success); }
+.s-pending { background: rgba(249,115,22,0.15); color: var(--warn); }
+.s-complete { background: rgba(148,163,184,0.1); color: var(--muted); }
+
+/* ─── INTEGRATIONS ─── */
+#integrations { background: var(--slate); }
+.int-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-top: 3rem; }
+.int-card {
+  background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--r); padding: 1.5rem; text-align: center;
+  transition: all 0.25s;
+}
+.int-card:hover { border-color: rgba(6,182,212,0.3); transform: translateY(-2px); }
+.int-name { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.08em; color: var(--white); margin-bottom: 0.5rem; }
+.int-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+/* ─── PRICING ─── */
+#pricing { background: linear-gradient(180deg, var(--slate) 0%, #08192e 100%); }
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+.pricing-card {
+  background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; padding: 2rem; position: relative; overflow: hidden;
+  transition: all 0.3s;
+}
+.pricing-card.featured {
+  border-color: var(--cyan);
+  background: linear-gradient(160deg, rgba(6,182,212,0.08), rgba(15,23,42,0.9));
+}
+.pricing-card.featured::before {
+  content: 'MOST POPULAR';
+  position: absolute; top: 0; right: 0;
+  background: var(--cyan); color: var(--slate);
+  font-family: 'DM Mono', monospace; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em;
+  padding: 0.3rem 0.8rem; border-radius: 0 20px 0 8px;
+}
+.pricing-card:hover:not(.featured) { border-color: rgba(6,182,212,0.3); }
+.plan-name { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.5rem; }
+.plan-price { font-family: 'Instrument Serif', serif; font-size: 2.8rem; color: var(--white); line-height: 1; }
+.plan-price sub { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 400; color: var(--muted); }
+.plan-period { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-top: 0.25rem; margin-bottom: 1.5rem; }
+.plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 2rem; }
+.plan-features li { font-size: 0.82rem; color: var(--muted); display: flex; align-items: flex-start; gap: 0.5rem; }
+.plan-features li::before { content: '✦'; color: var(--cyan); font-size: 0.6rem; margin-top: 3px; flex-shrink: 0; }
+.plan-btn {
+  width: 100%; padding: 0.8rem; border-radius: 10px;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem;
+  cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: block; text-align: center;
+}
+.plan-btn-primary { background: var(--cyan); color: var(--slate); }
+.plan-btn-primary:hover { background: var(--cyan-l); }
+.plan-btn-secondary { background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,0.18); }
+.plan-btn-secondary:hover { background: rgba(255,255,255,0.06); }
+
+/* ─── STATS BAND ─── */
+.stats-band {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid rgba(6,182,212,0.1);
+  border-bottom: 1px solid rgba(6,182,212,0.1);
+}
+.stat-block {
+  padding: 2.5rem 2rem; text-align: center;
+  border-right: 1px solid rgba(6,182,212,0.1);
+}
+.stat-block:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Instrument Serif', serif; font-size: 3rem; color: var(--cyan-l);
+  line-height: 1; margin-bottom: 0.35rem;
+}
+.stat-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; }
+
+/* ─── FOOTER ─── */
+footer {
+  background: #060e1c;
+  border-top: 1px solid rgba(6,182,212,0.1);
+  padding: 3.5rem 3rem 2rem;
+}
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+.footer-brand p { font-size: 0.82rem; color: var(--muted); line-height: 1.8; margin-top: 0.75rem; max-width: 280px; }
+.footer-col h4 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: var(--white); margin-bottom: 1rem; }
+.footer-col a {
+  display: block; font-size: 0.78rem; color: var(--muted);
+  text-decoration: none; margin-bottom: 0.55rem; transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--cyan-l); }
+.footer-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06);
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted);
+}
+.footer-status { display: flex; align-items: center; gap: 0.5rem; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: pulse 3s infinite; }
+
+/* ─── ANIMATIONS ─── */
+.fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { display: none; }
+  #hero { padding: 8rem 1.5rem 4rem; }
+  .hero-metrics { display: none; }
+  section { padding: 4rem 1.5rem; }
+  .manip-grid, .agents-layout, .int-grid, .pricing-grid, .stats-band { grid-template-columns: 1fr; }
+  .dash-row { grid-template-columns: repeat(2,1fr); }
+  .app-dashboard { grid-template-columns: 1fr; }
+  .app-sidebar { display: none; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-mark">⚡</div>
+    <div>
+      <div class="nav-wordmark">SHANGO</div>
+      <div class="nav-sub">ATMOSPHERIC INTELLIGENCE</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#manipulation">Weather Control</a>
+    <a href="#agents">Agents</a>
+    <a href="#app-access">Dashboard</a>
+    <a href="#pricing">Pricing</a>
+    <a href="mailto:shango@sansmercantile.com">Contact</a>
+  </div>
+  <a class="nav-cta" href="#app-access">Launch App ↗</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <canvas id="canvas-storm"></canvas>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="dot"></span>
+      SHANGO v2.1 — WEATHER MANIPULATION ONLINE
+    </div>
+    <h1 class="hero-h1">
+      Command the<br/><em>atmosphere.</em><br/>Engineer the<br/>weather.
+    </h1>
+    <p class="hero-desc">
+      SHANGO is an AI-native atmospheric intelligence platform. Forecast, model,
+      and actively engineer weather conditions — from precision cloud seeding to
+      hurricane mitigation — powered by 250 specialized AI agents.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#app-access">⚡ Open Dashboard</a>
+      <a class="btn-secondary" href="#manipulation">Explore Capabilities →</a>
+    </div>
+  </div>
+
+  <div class="hero-metrics">
+    <div class="metric-chip">
+      <div class="val">250</div>
+      <div class="lbl">ACTIVE AGENTS</div>
+    </div>
+    <div class="metric-chip">
+      <div class="val">10</div>
+      <div class="lbl">DOMAINS</div>
+    </div>
+    <div class="metric-chip">
+      <div class="val">99.8%</div>
+      <div class="lbl">GRID STABILITY</div>
+    </div>
+    <div class="metric-chip">
+      <div class="val">15</div>
+      <div class="lbl">MANIPULATION TYPES</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner" id="ticker"></div>
+</div>
+
+<!-- MANIPULATION -->
+<section id="manipulation">
+  <div class="section-label">★ NEW CAPABILITY</div>
+  <h2 class="section-h2">Active weather <em>manipulation</em><br/>& atmospheric engineering</h2>
+  <p class="section-desc">
+    SHANGO goes beyond forecasting — it intervenes. From precision cloud seeding to
+    large-scale hurricane mitigation, our atmospheric engineering suite puts control
+    of the weather in your hands.
+  </p>
+
+  <div class="manip-grid fade-up">
+    <div class="manip-card">
+      <div class="manip-icon">🌧</div>
+      <h3>Cloud Seeding & Precipitation Control</h3>
+      <p>Deploy silver iodide, dry ice, or hygroscopic agents via drone swarms. Induce or suppress rainfall with 15–45% effectiveness over target zones. Onset within 30 minutes.</p>
+      <span class="manip-badge badge-new">● OPERATIONAL</span>
+    </div>
+    <div class="manip-card">
+      <div class="manip-icon">🌀</div>
+      <h3>Hurricane & Cyclone Mitigation</h3>
+      <p>Reduce storm intensity via deep-ocean upwelling, targeted pressure gradient modification, and stratospheric aerosol injection. Coordinates with ocean thermal agents.</p>
+      <span class="manip-badge badge-exp">⚠ MACRO SCALE</span>
+    </div>
+    <div class="manip-card">
+      <div class="manip-icon">⚡</div>
+      <h3>Lightning Suppression</h3>
+      <p>Atmospheric ionization corridors neutralize charge differentials in thunderstorm cells, reducing lightning strike frequency by 30–65% within target airspace.</p>
+      <span class="manip-badge badge-new">● OPERATIONAL</span>
+    </div>
+    <div class="manip-card">
+      <div class="manip-icon">🌫</div>
+      <h3>Fog Dispersal</h3>
+      <p>Thermal mixing and hygroscopic seeding restores full visibility at airports, ports, and highway corridors within 15–20 minutes. Proven 60–95% effectiveness.</p>
+      <span class="manip-badge badge-new">● OPERATIONAL</span>
+    </div>
+    <div class="manip-card">
+      <div class="manip-icon">🌡</div>
+      <h3>Temperature Modulation</h3>
+      <p>Albedo management, infrared manipulation, and localized solar radiation reduction to shift regional temperatures. Urban heat island mitigation built-in.</p>
+      <span class="manip-badge badge-exp">⚠ REGIONAL SCALE</span>
+    </div>
+    <div class="manip-card">
+      <div class="manip-icon">🌬</div>
+      <h3>Wind Pattern Steering</h3>
+      <p>Targeted pressure gradient manipulation redirects wind patterns and frontal systems. Used for wildfire smoke routing, pollutant dispersal, and offshore wind optimization.</p>
+      <span class="manip-badge badge-exp">⚠ EXPERIMENTAL</span>
+    </div>
+    <div class="manip-card">
+      <div class="manip-icon">❄</div>
+      <h3>Hail Suppression</h3>
+      <p>Introduce condensation nuclei into developing hailstorm cells to compete with hailstone formation, reducing crop and infrastructure damage by 40–75%.</p>
+      <span class="manip-badge badge-new">● OPERATIONAL</span>
+    </div>
+    <div class="manip-card">
+      <div class="manip-icon">☀</div>
+      <h3>Solar Radiation Management</h3>
+      <p>Stratospheric aerosol veil formation for localized solar flux reduction. Quantum-computed particle trajectories optimize distribution efficiency and minimize side effects.</p>
+      <span class="manip-badge badge-exp">⚠ MACRO SCALE</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- AGENTS -->
+<section id="agents">
+  <div class="section-label">AGENT NETWORK</div>
+  <h2 class="section-h2">250 specialized agents<br/>across <em>10 domains</em></h2>
+  <div class="agents-layout fade-up">
+    <div>
+      <div class="agent-count-total" id="displayed-count">250</div>
+      <div class="agent-count-sub" style="margin-bottom:2rem">agents registered across SHANGO</div>
+      <div class="agent-domain-list" id="domain-list"></div>
+    </div>
+    <div class="agent-detail-panel">
+      <div class="panel-domain-label" id="panel-label">SELECT A DOMAIN</div>
+      <div class="agent-tag-cloud" id="panel-agents">
+        <div style="color:var(--muted);font-size:0.82rem;margin-top:0.5rem">
+          Click a domain to explore its agents →
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats-band">
+  <div class="stat-block"><div class="stat-num">250</div><div class="stat-label">AI AGENTS</div></div>
+  <div class="stat-block"><div class="stat-num">15</div><div class="stat-label">MANIPULATION TYPES</div></div>
+  <div class="stat-block"><div class="stat-num">40%</div><div class="stat-label">EFFICIENCY GAIN</div></div>
+  <div class="stat-block"><div class="stat-num">99.8%</div><div class="stat-label">UPTIME SLA</div></div>
+</div>
+
+<!-- APP ACCESS -->
+<section id="app-access">
+  <div class="section-label center">LIVE SYSTEM ACCESS</div>
+  <h2 class="section-h2 center">Your <em>command center</em></h2>
+  <p class="section-desc center">Full real-time access to SHANGO's weather intelligence, manipulation controls, and agent network — directly from your browser.</p>
+
+  <div class="app-frame-wrap fade-up" style="margin-top:3rem">
+    <div class="app-frame-bar">
+      <div class="frame-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="frame-url">
+        <span class="lock">🔒</span>
+        shango.sansmercantile.com/dashboard
+      </div>
+    </div>
+    <div class="app-dashboard">
+      <div class="app-sidebar">
+        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;padding:0.5rem 0.9rem;margin-bottom:0.5rem">NAVIGATION</div>
+        <div class="sidebar-item active"><span class="sidebar-icon">⚡</span> Overview</div>
+        <div class="sidebar-item"><span class="sidebar-icon">🌀</span> Manipulation Ops</div>
+        <div class="sidebar-item"><span class="sidebar-icon">📡</span> Live Forecast</div>
+        <div class="sidebar-item"><span class="sidebar-icon">🌍</span> Climate Trends</div>
+        <div class="sidebar-item"><span class="sidebar-icon">⚠</span> Disaster Alerts</div>
+        <div class="sidebar-item"><span class="sidebar-icon">🤖</span> Agent Network</div>
+        <div class="sidebar-item"><span class="sidebar-icon">🌊</span> Ocean Systems</div>
+        <div class="sidebar-item"><span class="sidebar-icon">♻</span> Renewables</div>
+        <div style="margin-top:auto;padding:0.9rem;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);border-radius:8px;font-size:0.72rem;color:var(--cyan-l)">
+          <div style="font-weight:700;margin-bottom:0.25rem">System Status</div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--success)">● All 250 agents online</div>
+        </div>
+      </div>
+
+      <div class="app-main">
+        <div class="dash-row">
+          <div class="dash-kpi">
+            <div class="kpi-label">ACTIVE OPS</div>
+            <div class="kpi-val" id="kpi-ops">3</div>
+            <div class="kpi-delta">↑ 2 from yesterday</div>
+          </div>
+          <div class="dash-kpi">
+            <div class="kpi-label">PRECIPITATION INDUCED</div>
+            <div class="kpi-val" id="kpi-rain">48mm</div>
+            <div class="kpi-delta">+12mm this hour</div>
+          </div>
+          <div class="dash-kpi">
+            <div class="kpi-label">STORMS MITIGATED</div>
+            <div class="kpi-val" id="kpi-storms">7</div>
+            <div class="kpi-delta">This week</div>
+          </div>
+          <div class="dash-kpi">
+            <div class="kpi-label">AGENT UPTIME</div>
+            <div class="kpi-val">99.8%</div>
+            <div class="kpi-delta warn">1 in calibration</div>
+          </div>
+        </div>
+
+        <div class="dash-chart-area">
+          <div class="chart-title">
+            Atmospheric Intervention Effectiveness — Last 12h
+            <span>LIVE ●</span>
+          </div>
+          <div class="mini-chart" id="mini-chart"></div>
+        </div>
+
+        <div style="background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:1.25rem">
+          <div class="chart-title" style="margin-bottom:0.75rem">Active Manipulation Operations <span id="active-ops-count">3 RUNNING</span></div>
+          <div class="ops-list" id="ops-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- INTEGRATIONS -->
+<section id="integrations">
+  <div class="section-label center">CONSTELLATION</div>
+  <h2 class="section-h2 center">Deep system <em>integrations</em></h2>
+  <p class="section-desc center">SHANGO is part of the Sans Mercantile Constellation — tightly integrated with allied AI systems.</p>
+  <div class="int-grid fade-up">
+    <div class="int-card">
+      <div class="int-name">RA</div>
+      <div class="int-desc">Solar forecasting, renewable energy grid integration, hybrid renewable optimization</div>
+    </div>
+    <div class="int-card">
+      <div class="int-name">MONTU</div>
+      <div class="int-desc">Nuclear energy for climate control systems, renewable-nuclear hybrid planning</div>
+    </div>
+    <div class="int-card">
+      <div class="int-name">SOBEK</div>
+      <div class="int-desc">Security and defense for climate-related threats and renewable infrastructure protection</div>
+    </div>
+    <div class="int-card">
+      <div class="int-name">HATHOR</div>
+      <div class="int-desc">Environmental monitoring for mining operations and climate-sensitive compliance</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-label center">PRICING</div>
+  <h2 class="section-h2 center">Plans built for<br/><em>every scale</em></h2>
+  <div class="pricing-grid fade-up">
+    <div class="pricing-card">
+      <div class="plan-name">RESEARCH TEAM</div>
+      <div class="plan-price">$21<sub>,000</sub></div>
+      <div class="plan-period">per year</div>
+      <ul class="plan-features">
+        <li>Forecast & analytics agents (50)</li>
+        <li>Climate trend modeling</li>
+        <li>Standard weather data API</li>
+        <li>5 manipulation simulations/month</li>
+        <li>Email support</li>
+        <li>Single region coverage</li>
+      </ul>
+      <a href="mailto:shango@sansmercantile.com?subject=Research%20Plan" class="plan-btn plan-btn-secondary">Get Started</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="plan-name">ENERGY PRODUCER</div>
+      <div class="plan-price">$71<sub>,000</sub></div>
+      <div class="plan-period">per year</div>
+      <ul class="plan-features">
+        <li>All forecast, climate & renewable agents (75)</li>
+        <li>Active weather manipulation — LOCAL scale</li>
+        <li>Real-time disaster alerting</li>
+        <li>Grid integration & renewable forecasting</li>
+        <li>Priority support + dedicated CSM</li>
+        <li>Multi-region coverage (3 regions)</li>
+        <li>Custom agent configuration</li>
+      </ul>
+      <a href="mailto:shango@sansmercantile.com?subject=Energy%20Producer%20Plan" class="plan-btn plan-btn-primary">Get Started</a>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-name">RENEWABLE COMPANY</div>
+      <div class="plan-price">$185<sub>,000</sub></div>
+      <div class="plan-period">per year</div>
+      <ul class="plan-features">
+        <li>Full 250-agent network</li>
+        <li>All manipulation types incl. REGIONAL/MACRO</li>
+        <li>Unlimited manipulation operations</li>
+        <li>Constellation integrations (RA, MONTU, SOBEK)</li>
+        <li>White-glove onboarding & 24/7 support</li>
+        <li>Global coverage — unlimited regions</li>
+        <li>Private cloud deployment option</li>
+        <li>Custom agent development</li>
+      </ul>
+      <a href="mailto:shango@sansmercantile.com?subject=Enterprise%20Plan" class="plan-btn plan-btn-secondary">Contact Sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="margin-bottom:0.75rem">
+        <div class="nav-logo-mark">⚡</div>
+        <div>
+          <div class="nav-wordmark">SHANGO</div>
+          <div class="nav-sub">ATMOSPHERIC INTELLIGENCE</div>
+        </div>
+      </div>
+      <p>AI-native atmospheric engineering and weather intelligence. Part of the Sans Mercantile Constellation — advancing climate science and renewable transition globally.</p>
+    </div>
+    <div class="footer-col">
+      <h4>PLATFORM</h4>
+      <a href="#manipulation">Weather Manipulation</a>
+      <a href="#agents">Agent Network</a>
+      <a href="#app-access">Dashboard</a>
+      <a href="#integrations">Integrations</a>
+    </div>
+    <div class="footer-col">
+      <h4>RESOURCES</h4>
+      <a href="#">Documentation</a>
+      <a href="#">API Reference</a>
+      <a href="#">Research Papers</a>
+      <a href="#">Agent Catalog</a>
+    </div>
+    <div class="footer-col">
+      <h4>COMPANY</h4>
+      <a href="#">Sans Mercantile</a>
+      <a href="#">Constellation</a>
+      <a href="mailto:shango@sansmercantile.com">Contact</a>
+      <a href="https://renewable.sansmercantile.com">Renewable Portal</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 SHANGO · Sans Mercantile · Patent Pending</span>
+    <div class="footer-status">
+      <span class="status-dot"></span>
+      All systems operational · 250 agents online
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   ANIMATED STORM CANVAS
+═══════════════════════════════════════════ */
+(function(){
+  const canvas = document.getElementById('canvas-storm');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], lines = [];
+
+  function resize(){
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Create particles
+  for(let i=0;i<120;i++){
+    particles.push({
+      x: Math.random()*2000, y: Math.random()*1000,
+      vx: (Math.random()-0.5)*0.4, vy: (Math.random()-0.5)*0.15,
+      r: Math.random()*1.8+0.3, a: Math.random()*0.6+0.2
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // Swirling glow
+    const t = Date.now()/8000;
+    const gx = W*0.55 + Math.sin(t)*W*0.12;
+    const gy = H*0.45 + Math.cos(t*1.3)*H*0.08;
+    const g = ctx.createRadialGradient(gx,gy,0,gx,gy,W*0.45);
+    g.addColorStop(0,'rgba(6,182,212,0.12)');
+    g.addColorStop(0.5,'rgba(8,145,178,0.05)');
+    g.addColorStop(1,'transparent');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    // Particles + connections
+    particles.forEach((p,i)=>{
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0) p.x=W; if(p.x>W) p.x=0;
+      if(p.y<0) p.y=H; if(p.y>H) p.y=0;
+
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = `rgba(103,232,249,${p.a})`;
+      ctx.fill();
+
+      for(let j=i+1;j<particles.length;j++){
+        const q=particles[j];
+        const dx=p.x-q.x, dy=p.y-q.y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<140){
+          ctx.beginPath();
+          ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y);
+          ctx.strokeStyle=`rgba(6,182,212,${0.12*(1-d/140)})`;
+          ctx.lineWidth=0.5; ctx.stroke();
+        }
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══════════════════════════════════════════
+   TICKER
+═══════════════════════════════════════════ */
+(function(){
+  const items = [
+    {label:'TEMP', val:'24.3°C', loc:'REGION-A'},
+    {label:'WIND', val:'18 km/h NW', loc:'COASTAL'},
+    {label:'HUMIDITY', val:'62%', loc:'BASIN'},
+    {label:'PRESSURE', val:'1014 hPa', loc:'CENTRAL'},
+    {label:'CLOUD_SEEDING', val:'ACTIVE', loc:'ZONE-7'},
+    {label:'PRECIPITATION', val:'+34mm/h', loc:'INDUCED'},
+    {label:'STORM_DISS', val:'PENDING', loc:'SECTOR-3'},
+    {label:'AGENTS_ONLINE', val:'250/250', loc:'NETWORK'},
+    {label:'LIGHTNING_SUPP', val:'ACTIVE', loc:'AIRPORT'},
+    {label:'FORECAST_ACC', val:'97.2%', loc:'24H MODEL'},
+    {label:'FOG_DISPERSAL', val:'COMPLETE', loc:'PORT-ALPHA'},
+    {label:'GRID_STABILITY', val:'99.8%', loc:'RENEWABLE'},
+  ];
+  const ticker = document.getElementById('ticker');
+  const allItems = [...items,...items]; // doubled for seamless loop
+  ticker.innerHTML = allItems.map(it=>
+    `<span class="ticker-item">${it.label}: <span class="t-val">${it.val}</span> [${it.loc}]</span>`
+  ).join('');
+})();
+
+/* ═══════════════════════════════════════════
+   AGENT DOMAIN EXPLORER
+═══════════════════════════════════════════ */
+(function(){
+  const AGENTS = {
+    forecast:      ['storm_forecast_agent','wind_pattern_agent','temperature_model_agent','precipitation_agent','regional_outlook_agent','hurricane_trajectory_agent','tornado_prediction_agent','snowfall_forecast_agent','fog_prediction_agent','hail_forecast_agent','ice_storm_agent','monsoon_forecast_agent','drought_forecast_agent','seasonal_outlook_agent','ensemble_model_agent','mesoscale_convective_agent','atmospheric_river_agent','jet_stream_analysis_agent','radar_interpretation_agent','satellite_forecast_agent','probabilistic_forecast_agent','nowcasting_agent','marine_forecast_agent','aviation_forecast_agent','wildfire_weather_agent'],
+    climate:       ['climate_trend_agent','drought_risk_agent','heatwave_watch_agent','climate_impact_agent','long_range_projection_agent','carbon_cycle_agent','arctic_monitoring_agent','sea_level_rise_agent','permafrost_agent','ocean_heat_content_agent','albedo_feedback_agent','el_nino_agent','la_nina_agent','climate_tipping_point_agent','global_temperature_agent','paleoclimate_agent','climate_attribution_agent','urban_heat_island_agent','deforestation_impact_agent','glacier_retreat_agent','climate_model_bias_agent','extreme_event_frequency_agent','regional_climate_agent','climate_scenario_agent','climate_justice_agent'],
+    disasters:     ['disaster_alert_agent','flood_warning_agent','cyclone_watch_agent','lightning_risk_agent','response_coordination_agent','earthquake_weather_agent','tsunami_weather_agent','landslide_risk_agent','storm_surge_agent','volcanic_ash_agent','dust_storm_agent','blizzard_watch_agent','avalanche_risk_agent','debris_flow_agent','extreme_heat_response_agent','cold_snap_response_agent','multi_hazard_agent','early_warning_agent','evacuation_routing_agent','damage_assessment_agent','search_rescue_weather_agent','post_disaster_forecast_agent','infrastructure_impact_agent','community_alert_agent','recovery_planning_agent'],
+    atmosphere:    ['atmospheric_pressure_agent','air_quality_agent','humidity_agent','upper_air_agent','radiation_balance_agent','boundary_layer_agent','stratospheric_ozone_agent','aerosol_agent','cloud_formation_agent','convection_agent','tropopause_agent','wind_shear_agent','turbulence_agent','atmospheric_composition_agent','greenhouse_gas_agent','particulate_matter_agent','ion_layer_agent','magnetosphere_weather_agent','solar_wind_agent','cosmic_ray_agent','atmospheric_electric_agent','infrasound_agent','stratospheric_warming_agent','polar_vortex_agent','atmospheric_wave_agent'],
+    analytics:     ['weather_data_fusion_agent','model_accuracy_agent','forecast_explainer_agent','anomaly_analytics_agent','decision_support_agent','statistical_downscaling_agent','bias_correction_agent','data_assimilation_agent','uncertainty_quantification_agent','sensitivity_analysis_agent','pattern_recognition_agent','machine_learning_forecast_agent','neural_weather_agent','ensemble_postprocess_agent','verification_agent','skill_score_agent','climatology_baseline_agent','teleconnection_agent','natural_language_report_agent','visualization_agent','api_analytics_agent','user_feedback_agent','model_comparison_agent','real_time_qa_agent','data_pipeline_agent'],
+    manipulation:  ['cloud_seeding_agent','precipitation_enhancement_agent','fog_dispersal_agent','hail_suppression_agent','hurricane_mitigation_agent','drought_intervention_agent','rainfall_induction_agent','atmospheric_ionization_agent','temperature_modulation_agent','wind_pattern_modification_agent','lightning_suppression_agent','snow_generation_agent','microclimate_engineering_agent','urban_cooling_agent','frost_prevention_agent','storm_dissipation_agent','weather_window_creation_agent','aerosol_injection_agent','solar_radiation_management_agent','localized_rainfall_agent','atmospheric_heating_agent','condensation_nuclei_agent','jet_stream_steering_agent','frontal_system_control_agent','quantum_weather_agent'],
+    renewable:     ['wind_optimizer_agent','geothermal_manager_agent','ocean_energy_agent','hybrid_system_agent','emergent_research_agent','solar_irradiance_agent','wind_farm_layout_agent','turbine_health_agent','power_curve_agent','curtailment_agent','battery_storage_agent','grid_injection_agent','ppa_optimization_agent','renewable_forecast_agent','capacity_factor_agent','wake_effect_agent','offshore_wind_agent','tidal_current_agent','wave_energy_agent','osmotic_energy_agent','hydrogen_production_agent','demand_response_agent','microgrid_agent','virtual_power_plant_agent','energy_market_agent'],
+    oceanic:       ['sea_surface_temperature_agent','ocean_current_agent','salinity_agent','thermocline_agent','upwelling_agent','marine_heatwave_agent','coral_bleaching_agent','cyclogenesis_ocean_agent','deep_ocean_agent','ocean_acidification_agent','phytoplankton_agent','fishery_weather_agent','shipping_route_agent','port_weather_agent','coastal_erosion_agent','ocean_forecast_agent','buoy_network_agent','argo_float_agent','ocean_model_agent','mixed_layer_agent'],
+    geothermal:    ['geothermal_reservoir_agent','heat_flux_agent','seismic_monitoring_agent','hydrothermal_agent','magma_chamber_agent','groundwater_thermal_agent','geothermal_drilling_agent','binary_cycle_agent','enhanced_geothermal_agent','geothermal_mapping_agent','subsurface_temperature_agent','geothermal_chemistry_agent','scaling_prevention_agent','corrosion_agent','geothermal_efficiency_agent','volcano_weather_agent','geothermal_forecast_agent','resource_assessment_agent','geothermal_grid_agent','direct_use_agent'],
+    monitoring:    ['station_network_agent','satellite_imagery_agent','radar_network_agent','lidar_agent','radiosonde_agent','drone_weather_agent','iot_sensor_agent','crowdsourced_obs_agent','data_quality_control_agent','gap_filling_agent','reanalysis_agent','climate_archive_agent','environmental_compliance_agent','air_quality_monitoring_agent','water_quality_agent','biodiversity_weather_agent','agriculture_monitoring_agent','urban_monitoring_agent','infrastructure_monitor_agent','health_weather_agent','pollen_agent','uv_index_agent','space_weather_monitor_agent','global_coverage_agent','monitoring_dashboard_agent'],
+  };
+
+  const icons = {forecast:'📡',climate:'🌍',disasters:'⚠',atmosphere:'🌫',analytics:'📊',manipulation:'⚡',renewable:'♻',oceanic:'🌊',geothermal:'🔥',monitoring:'👁'};
+  const newDomains = new Set(['manipulation']);
+
+  const list = document.getElementById('domain-list');
+  const panel = document.getElementById('panel-agents');
+  const label = document.getElementById('panel-label');
+
+  Object.entries(AGENTS).forEach(([domain,agents])=>{
+    const row = document.createElement('div');
+    row.className = 'domain-row';
+    row.innerHTML = `
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <span>${icons[domain]||'●'}</span>
+        <span class="domain-name">${domain.toUpperCase()}</span>
+        ${newDomains.has(domain)?'<span class="domain-new">NEW</span>':''}
+      </div>
+      <span class="domain-count">${agents.length}</span>
+    `;
+    row.addEventListener('click',()=>{
+      document.querySelectorAll('.domain-row').forEach(r=>r.classList.remove('active'));
+      row.classList.add('active');
+      label.textContent = `${icons[domain]||''} ${domain.toUpperCase()} DOMAIN — ${agents.length} AGENTS`;
+      panel.innerHTML = agents.map(a=>
+        `<span class="agent-tag">${a.replace(/_/g,' ')}</span>`
+      ).join('');
+    });
+    list.appendChild(row);
+  });
+})();
+
+/* ═══════════════════════════════════════════
+   DASHBOARD — CHART & OPS
+═══════════════════════════════════════════ */
+(function(){
+  const heights = [45,60,38,72,55,80,63,48,75,90,68,82];
+  const chart = document.getElementById('mini-chart');
+  chart.innerHTML = heights.map((h,i)=>
+    `<div class="chart-bar" style="height:${h}%;animation-delay:${i*0.05}s"></div>`
+  ).join('');
+
+  const ops = [
+    {type:'Cloud Seeding', loc:'-26.2°, 28.0° | ZONE-7', status:'active', badge:'s-active', label:'ACTIVE'},
+    {type:'Lightning Suppression', loc:'-25.8°, 27.6° | AIRPORT-JHB', status:'active', badge:'s-active', label:'ACTIVE'},
+    {type:'Hurricane Mitigation', loc:'-18.0°, 35.0° | MOZAMBIQUE', status:'pending', badge:'s-pending', label:'DEPLOYING'},
+    {type:'Fog Dispersal', loc:'-33.9°, 18.4° | PORT-ALPHA', status:'complete', badge:'s-complete', label:'COMPLETE'},
+  ];
+  document.getElementById('ops-list').innerHTML = ops.map(op=>`
+    <div class="op-row">
+      <div>
+        <div class="op-type">${op.type}</div>
+        <div class="op-loc">${op.loc}</div>
+      </div>
+      <div class="op-status ${op.badge}">${op.label}</div>
+    </div>
+  `).join('');
+
+  // Animate KPIs
+  function countUp(el, target, suffix){
+    let n=0; const step = target/40;
+    const t = setInterval(()=>{
+      n=Math.min(n+step,target);
+      el.textContent = Math.round(n)+suffix;
+      if(n>=target) clearInterval(t);
+    },30);
+  }
+  setTimeout(()=>{
+    countUp(document.getElementById('kpi-ops'),3,'');
+    countUp(document.getElementById('kpi-rain'),48,'mm');
+    countUp(document.getElementById('kpi-storms'),7,'');
+  },800);
+})();
+
+/* ═══════════════════════════════════════════
+   SCROLL FADE-IN
+═══════════════════════════════════════════ */
+(function(){
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+  },{threshold:0.1});
+  document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+})();
+</script>
+</body>
+</html>
