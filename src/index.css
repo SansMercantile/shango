@@ -1,14 +1,88 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
 
-html, body, #root {
-  height: 100%;
-  margin: 0;
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Syne", sans-serif;
+  --font-serif: "Instrument Serif", serif;
+  --font-mono: "DM Mono", monospace;
+  
+  --color-brand-bg: #0f172a;               /* Slate */
+  --color-brand-primary: #1e293b;          /* Slate-M */
+  --color-brand-secondary: #334155;        /* Slate-S */
+  --color-brand-accent: #06b6d4;           /* Cyan */
+  --color-brand-accent-light: #67e8f9;     /* Cyan-L */
+  --color-brand-accent-dark: #0891b2;      /* Cyan-D */
+  --color-brand-text: #f8fafc;             /* White */
+  --color-brand-muted: #94a3b8;            /* Muted */
+  --color-brand-ice: #e0f7ff;              /* Ice */
+  --color-brand-warn: #f97316;             /* Warn */
+  --color-brand-danger: #ef4444;           /* Danger */
+  --color-brand-success: #10b981;          /* Success */
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  overflow-x: hidden;
-  transition: background 3s linear;
+/* Custom glow animations for tactical components */
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
 }
+
+.radar-sweep {
+  animation: radar-pulse 3s cubic-bezier(0.21, 0.61, 0.35, 1) infinite;
+}
+
+/* Scrollbar customization for a clean console aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #06b6d4;
+}
+
+@keyframes strike {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.95);
+    filter: drop-shadow(0 0 2px rgba(6, 182, 212, 0.2));
+  }
+  15%, 45%, 70%, 90% {
+    opacity: 0.6;
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px rgba(6, 182, 212, 0.5));
+  }
+  17%, 49% {
+    opacity: 1;
+    transform: scale(1.15) rotate(-6deg);
+    filter: drop-shadow(0 0 14px rgba(103, 232, 249, 1)) brightness(1.4);
+  }
+  18% {
+    opacity: 0.2;
+    transform: scale(0.9) rotate(3deg);
+  }
+}
+
+.lightning-strike {
+  animation: strike 3.5s infinite ease-in-out;
+}
+
