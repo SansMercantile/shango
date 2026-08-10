@@ -1,20 +1,72 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# SHANGO Frontend — Atmospheric & Climate Engineering Intelligence
 
-# Run and deploy your AI Studio app
+SHANGO is Sans Mercantile's global climate engineering and weather command
+system: threat radar, predictive weather modeling, deployable intervention
+planning (seeding, dispersal, thermal/sonic countermeasures), and an AI
+advisory core.
 
-This contains everything you need to run your app locally.
+## Stack
 
-View your app in AI Studio: https://ai.studio/apps/9b3db1d6-a24e-4142-87dc-2bfdc427bfa8
+Single Node/Express server (`server.ts`) that runs Vite in middleware mode for
+dev and serves the static build in production — one process, one port.
 
-## Run Locally
+- React 19 + TypeScript, Vite 6, Tailwind CSS 4
+- `recharts` for data visualization, `motion` (Framer Motion), `lucide-react`
+- Google Gemini (`@google/genai`, model `gemini-3.5-flash`) for the AI advisor
 
-**Prerequisites:**  Node.js
+## Local Development
 
+**Prerequisites:** Node.js 20+
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm install
+cp .env.example .env.local
+# then set GEMINI_API_KEY in .env.local
+npm run dev
+```
+
+Runs on **http://localhost:3000**. Without `GEMINI_API_KEY` set, the AI
+advisor endpoint returns a clear error rather than failing silently.
+
+## API Routes (server.ts)
+
+- `POST /api/ai/advise` — SHANGO Atmospheric Intelligence Core advisory,
+  takes `{ prompt, operationContext }`, returns `{ text }`
+
+## Build & Run (production)
+
+```bash
+npm run build   # vite build + esbuild-bundles server.ts to dist/server.cjs
+npm start        # node dist/server.cjs
+```
+
+## Project Structure
+
+```
+shango/
+├── server.ts                  # Express app: /api/ai/advise + Vite/static serving
+├── src/
+│   ├── App.tsx                 # Landing <-> Console view switch
+│   ├── data.ts
+│   ├── types.ts
+│   └── components/
+│       ├── LandingPage.tsx
+│       ├── OnboardingWizard.tsx
+│       ├── Header.tsx
+│       ├── CommandMap.tsx       # Global threat/operations map
+│       ├── PredictiveEngine.tsx # Weather prediction + anomaly ledger
+│       ├── InterventionPanel.tsx # Deployable countermeasure controls
+│       ├── AIAdvisor.tsx        # Chat interface to /api/ai/advise
+│       ├── AgentDirectory.tsx
+│       └── OperatorProfile.tsx
+└── vite.config.ts
+```
+
+## Notes
+
+- 2026-08-09: fixed invalid Tailwind fractional sizes (`w-4.5`/`h-4.5`,
+  `w-5.5`/`h-5.5` aren't real Tailwind values) and the leftover `react-example`
+  placeholder package name; build script was missing the esbuild step needed
+  to actually produce `dist/server.cjs` for `npm start` (same pattern found in
+  [[ptah]]). Custom `--color-brand-*` theme tokens in `index.css` are real and
+  fine, not part of this cleanup.
