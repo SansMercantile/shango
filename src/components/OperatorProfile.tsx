@@ -128,7 +128,7 @@ export default function OperatorProfile() {
         {/* Statistics Grid */}
         <div className="bg-[#1e293b] border border-[#06b6d4]/15 rounded-md p-6 shadow-lg flex flex-col gap-4">
           <div className="flex items-center gap-2 border-b border-[#06b6d4]/10 pb-3">
-            <Award className="w-4.5 h-4.5 text-[#06b6d4]" />
+            <Award className="w-4 h-4 text-[#06b6d4]" />
             <h3 className="font-display font-black text-xs uppercase tracking-widest text-[#f8fafc]">
               CLIMATE DISRUPTION EXPERIMENT SCORES
             </h3>
@@ -151,7 +151,7 @@ export default function OperatorProfile() {
         <div className="bg-[#1e293b] border border-[#06b6d4]/15 rounded-md p-6 shadow-md flex-grow flex flex-col gap-4 justify-between">
           <div className="flex items-center justify-between border-b border-[#06b6d4]/10 pb-3">
             <div className="flex items-center gap-2">
-              <Radio className="w-4.5 h-4.5 text-[#06b6d4] animate-pulse" />
+              <Radio className="w-4 h-4 text-[#06b6d4] animate-pulse" />
               <h3 className="font-display font-black text-xs uppercase tracking-widest text-[#f8fafc]">
                 SATELLITE MICROWAVE RELAY CALIBRATION
               </h3>

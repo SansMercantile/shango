@@ -136,7 +136,7 @@ export default function PredictiveEngine() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-md bg-[#06b6d4]/10 border border-[#06b6d4]/20 flex items-center justify-center text-[#06b6d4] animate-pulse">
-              <CloudLightning className="w-5.5 h-5.5" />
+              <CloudLightning className="w-6 h-6" />
             </div>
             <div>
               <span className="text-[9px] font-mono tracking-widest text-[#06b6d4] font-bold uppercase block">
@@ -255,7 +255,7 @@ export default function PredictiveEngine() {
             
             <div className="flex items-center justify-between border-b border-[#06b6d4]/15 pb-3">
               <div className="flex items-center gap-2">
-                <ShieldAlert className="w-4.5 h-4.5 text-[#06b6d4]" />
+                <ShieldAlert className="w-4 h-4 text-[#06b6d4]" />
                 <h3 className="font-display font-black text-xs uppercase tracking-widest text-[#f8fafc]">
                   METEO FORECAST ANOMALY LEDGER
                 </h3>
