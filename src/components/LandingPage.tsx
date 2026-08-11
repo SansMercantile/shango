@@ -5,6 +5,7 @@ import {
   Grid, HelpCircle, Radio, Globe, Wind, BarChart3, 
   RefreshCw, Waves, Flame, Eye, Linkedin, Github
 } from "lucide-react";
+import { LiveWeatherHero } from "./LiveWeatherHero";
 
 interface LandingPageProps {
   onLaunchApp: () => void;
@@ -195,7 +196,11 @@ export default function LandingPage({ onLaunchApp }: LandingPageProps) {
         {currentTab === "home" && (
           <div>
             
-            {/* HERO SECTION with Canvas */}
+            {/* HERO SECTION — background is now the site's real, live weather (real
+                condition + intensity + actual sun position for the visitor's
+                location), not decorative canvas lines. The existing canvas/copy/CTAs
+                below are unchanged. */}
+            <LiveWeatherHero>
             <header className="relative py-28 md:py-36 px-6 overflow-hidden border-b border-[#06b6d4]/15">
               <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
               
@@ -238,6 +243,7 @@ export default function LandingPage({ onLaunchApp }: LandingPageProps) {
                 </div>
               </div>
             </header>
+            </LiveWeatherHero>
 
             {/* WEATHER TICKER BAND */}
             <div className="bg-[#06b6d4]/5 border-b border-[#06b6d4]/15 overflow-hidden py-3">
