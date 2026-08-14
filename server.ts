@@ -1,33 +1,13 @@
 import express from "express";
 import path from "path";
-import dotenv from "dotenv";
-import { GoogleGenAI } from "@google/genai";
 import { createServer as createViteServer } from "vite";
-
-dotenv.config();
+import { generateText } from "./bedrockClient";
 
 const app = express();
 const PORT = 3000;
 
 // Express JSON parsing middleware
 app.use(express.json());
-
-// Initialize GoogleGenAI on the server
-const apiKey = process.env.GEMINI_API_KEY;
-let ai: GoogleGenAI | null = null;
-
-if (apiKey) {
-  ai = new GoogleGenAI({
-    apiKey: apiKey,
-    httpOptions: {
-      headers: {
-        'User-Agent': 'aistudio-build',
-      }
-    }
-  });
-} else {
-  console.warn("WARNING: GEMINI_API_KEY is not defined in environment variables. Gemini calls will fail.");
-}
 
 // REST API for weather simulation advisory
 app.post("/api/ai/advise", async (req, res) => {
@@ -38,39 +18,26 @@ app.post("/api/ai/advise", async (req, res) => {
     return;
   }
 
-  if (!ai) {
-    res.status(500).json({ 
-      error: "Gemini client not initialized. Please verify that GEMINI_API_KEY is configured." 
-    });
-    return;
-  }
-
   try {
-    const contextStr = operationContext 
+    const contextStr = operationContext
       ? `\nActive Operational Context: ${JSON.stringify(operationContext)}`
       : "";
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: [
-        {
-          text: `You are the SHANGO Atmospheric Intelligence Core, an advanced global climate engineering and weather command AI.
+    const systemPrompt = `You are the SHANGO Atmospheric Intelligence Core, an advanced global climate engineering and weather command AI.
 You advise mission commanders, atmospheric specialists, and regional planners on carrying out micro-engineered and macro-engineered weather adjustments.
 Your recommendations should be realistic, highly structured, and grounded in active weather science concepts, but tailored for a premium sci-fi simulation feel.
 Reference real weather-modifying strategies when possible (e.g., AgI seeding, dry ice cooling, laser lightning discharge lines, thermal air fan arrays, sonic storm front dispersion, stratospheric sulfate albedo management).
 Provide highly actionable coordinates, flight vector planning, vector dispersal concentrations, or safety profiles.
-Be objective, composed, authoritative, and direct. Use bullet points and clear, scannable structures. Avoid overly generic introductory filler words.
-${contextStr}
+Be objective, composed, authoritative, and direct. Use bullet points and clear, scannable structures. Avoid overly generic introductory filler words.`;
 
-User Mission Inquiry: ${prompt}`
-        }
-      ]
+    const { text } = await generateText(`${contextStr}\n\nUser Mission Inquiry: ${prompt}`, {
+      systemPrompt,
+      maxTokens: 1024,
     });
 
-    const resultText = response.text || "No advisory received from SHANGO Core.";
-    res.json({ text: resultText });
+    res.json({ text: text || "No advisory received from SHANGO Core." });
   } catch (error: any) {
-    console.error("Gemini API Error in advise endpoint:", error);
+    console.error("Bedrock API Error in advise endpoint:", error);
     res.status(500).json({ error: error?.message || "Internal server error querying SHANGO Intelligence Core." });
   }
 });

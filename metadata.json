@@ -2,5 +2,5 @@
   "name": "SHANGO",
   "description": "Atmospheric Intelligence Command Center for active weather manipulation, cloud seeding, and storm mitigation.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }
